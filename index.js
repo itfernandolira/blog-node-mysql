@@ -3,16 +3,25 @@ const app=express();
 
 const bodyParser=require("body-parser");
 
+const session=require("express-session");
+
 const connection=require("./database/database");
 
 const categoriesController=require("./categories/CategoriesController");
 const articlesController=require("./articles/ArticlesController");
+const usersController=require("./users/UsersController");
 
 const Article = require("./articles/Article");
 const Category = require("./categories/Category");
+const User = require("./users/User");
 
 app.set('view engine','ejs');
 app.use(express.static('public'));
+
+app.use(session({
+    secret: "FkjdD33s",
+    cookie: {maxAge: 600000}
+}));
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -28,6 +37,7 @@ connection
 
 app.use("/",categoriesController);
 app.use("/",articlesController);
+app.use("/",usersController);
 
 app.get("/",(req,res)=>{
     Article.findAll({
