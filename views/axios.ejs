@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Use</title>
+</head>
+<body>
+    <hr>
+    <h4>Categories</h4>
+    <hr>
+    <ul id="categories"></ul>
+    <hr>
+    <h4>Add new category</h4>
+    <input type="text" name="title" id="title" placeholder="Title">
+    <button type="button" onclick="addCategory();">Add category</button>
+    <hr>
+    <h4>Edit category</h4>
+    <input type="text" name="idedit" id="idedit" placeholder="id" readonly>
+    <input type="text" name="titleedit" id="titleedit" placeholder="Title">
+    <button type="button" onclick="editCategory();">Edit category</button>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+
+    function addCategory() {
+        var title=document.getElementById("title");
+
+        var category={
+            title: title.value
+        }
+
+        axios.post("http://localhost:4000/api/categories",category).then(response => {
+            if (response.status==201) {
+                alert("Category added!");
+            }
+        }).catch(error => {
+            console.log(error);
+        });
+    }
+
+    function deleteCategory(item) {
+        var id=item.getAttribute("data-id");
+        axios.delete("http://localhost:4000/api/categories/"+id).then(response => {
+            if (response.status==200) {
+                alert("Category deleted!");
+            }
+        }).catch(error => {
+            console.log(error);
+        });
+    }
+
+    function loadForm(item) {
+        var id=item.getAttribute("data-id");
+        var title=item.getAttribute("data-title");
+
+        var idField=document.getElementById("idedit");
+        idField.value=id;
+        var titleField=document.getElementById("titleedit");
+        titleField.value=title;
+    }
+
+    function editCategory() {
+        var id=document.getElementById("idedit");
+        var title=document.getElementById("titleedit");
+
+        var category={
+            title: title.value
+        }
+
+        axios.put("http://localhost:4000/api/categories/"+id.value,category).then(response => {
+            if (response.status==200) {
+                alert("Category edited!");
+            }
+        }).catch(error => {
+            console.log(error);
+        });
+
+    }
+
+    axios.get("http://localhost:4000/api/categories").then(response=>{
+        var categories=response.data;
+        var list=document.getElementById("categories");
+
+        categories.forEach(category => {
+            var item=document.createElement("li");
+            item.setAttribute("data-id",category.id);
+            item.setAttribute("data-title",category.title);
+
+            item.innerHTML=category.id + " - " + category.title + "- " + category.slug;
+
+            var deleteBtn=document.createElement("button");
+            deleteBtn.innerHTML="Delete";
+            deleteBtn.addEventListener("click",function(){
+                deleteCategory(item);
+            });
+
+            var editBtn=document.createElement("button");
+            editBtn.innerHTML="Update";
+            editBtn.addEventListener("click",function(){
+                loadForm(item);
+            });
+ 
+            item.appendChild(deleteBtn);
+            item.appendChild(editBtn);
+            list.appendChild(item);
+            
+        });
+
+    }).catch(error =>{
+        console.log(error);
+    });
+</script>
+</html>

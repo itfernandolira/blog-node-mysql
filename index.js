@@ -55,6 +55,10 @@ app.get("/",(req,res)=>{
         });
 });
 
+app.get("/axios",(req,res)=>{
+    res.render("axios");
+});
+
 app.get("/:slug",(req,res)=>{
     var slug=req.params.slug;
     Article.findOne({
