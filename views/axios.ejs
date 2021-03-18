@@ -8,6 +8,11 @@
 </head>
 <body>
     <hr>
+    <h4>Login</h4>
+    <input type="text" name="email" id="email" placeholder="E-mail">
+    <input type="password" name="password" id="password" placeholder="****">
+    <button type="button"onclick="login();">Login</button>
+    <hr>
     <h4>Categories</h4>
     <hr>
     <ul id="categories"></ul>
@@ -24,6 +29,31 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
 
+    var axiosConfig={
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token")
+            }
+        };
+
+    function login() {
+        var emailField=document.getElementById("email");
+        var passwordField=document.getElementById("password");
+
+        var user={
+            email: emailField.value,
+            password: passwordField.value
+        }
+
+        axios.post("http://localhost:4000/api/auth",user).then(response=>{
+            var token=response.data.token;
+            localStorage.setItem("token",token);
+            axiosConfig.headers.Authorization="Bearer " + localStorage.getItem("token");
+            location.reload();
+        }).catch(error=>{
+            alert("Invalid login!");
+        });
+    }
+
     function addCategory() {
         var title=document.getElementById("title");
 
@@ -31,7 +61,7 @@
             title: title.value
         }
 
-        axios.post("http://localhost:4000/api/categories",category).then(response => {
+        axios.post("http://localhost:4000/api/categories",category,axiosConfig).then(response => {
             if (response.status==201) {
                 alert("Category added!");
             }
@@ -42,7 +72,7 @@
 
     function deleteCategory(item) {
         var id=item.getAttribute("data-id");
-        axios.delete("http://localhost:4000/api/categories/"+id).then(response => {
+        axios.delete("http://localhost:4000/api/categories/"+id,axiosConfig).then(response => {
             if (response.status==200) {
                 alert("Category deleted!");
             }
@@ -69,7 +99,7 @@
             title: title.value
         }
 
-        axios.put("http://localhost:4000/api/categories/"+id.value,category).then(response => {
+        axios.put("http://localhost:4000/api/categories/"+id.value,category,axiosConfig).then(response => {
             if (response.status==200) {
                 alert("Category edited!");
             }
@@ -79,7 +109,7 @@
 
     }
 
-    axios.get("http://localhost:4000/api/categories").then(response=>{
+    axios.get("http://localhost:4000/api/categories",axiosConfig).then(response=>{
         var categories=response.data;
         var list=document.getElementById("categories");
 
